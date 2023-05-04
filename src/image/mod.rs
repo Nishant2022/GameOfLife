@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use self::systems::{setup, edit_image, camera_zoom};
+use self::systems::{setup, edit_image, camera_zoom, translate_camera};
 
 pub mod systems;
 pub mod resources;
@@ -13,6 +13,7 @@ impl Plugin for PixelImage {
         app
             .add_startup_system(setup)
             .add_system(camera_zoom)
+            .add_system(translate_camera)
             .add_system(edit_image);
     }
 }

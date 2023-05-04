@@ -112,3 +112,41 @@ pub fn camera_zoom(
 
     projection.scale = projection.scale.clamp(0.05, 1.0);
 }
+
+pub fn translate_camera(
+    mut camera_transform: Query<&mut Transform, With<MainCamera>>,
+    camera_scale: Query<&OrthographicProjection, With<MainCamera>>,
+    keys: Res<Input<KeyCode>>,
+    windows: Query<&Window>
+) {
+    let mut translation = camera_transform.single_mut();
+    
+    let scale = camera_scale.single().scale;
+    let camera_top_left = camera_scale.single().area.min;
+    let camera_bottom_right = camera_scale.single().area.max;
+
+    let window_width: f32 = windows.get_single().unwrap().resolution.width();
+    let window_height: f32 = windows.get_single().unwrap().resolution.height();
+
+    let translation_amount = scale / 0.05;
+
+    if keys.pressed(KeyCode::W) || keys.pressed(KeyCode::Up) {
+        translation.translation.y += translation_amount;
+    }
+    if keys.pressed(KeyCode::A) || keys.pressed(KeyCode::Left) {
+        translation.translation.x -= translation_amount;
+    }
+    if keys.pressed(KeyCode::S) || keys.pressed(KeyCode::Down) {
+        translation.translation.y -= translation_amount;
+    }
+    if keys.pressed(KeyCode::D) || keys.pressed(KeyCode::Right) {
+        translation.translation.x += translation_amount;
+    }
+
+    let x: f32 = translation.translation.x;
+    let y: f32 = translation.translation.y;
+
+    translation.translation.x = x.clamp(-(window_width / 2.0) - camera_top_left.x, (window_width / 2.0) - camera_bottom_right.x);
+    translation.translation.y = y.clamp(-(window_height / 2.0) - camera_top_left.y, (window_height / 2.0) - camera_bottom_right.y);
+
+}
