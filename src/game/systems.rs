@@ -3,7 +3,7 @@ use rand::{distributions::Bernoulli, prelude::Distribution};
 
 use crate::image::{components::MainCamera, resources::ScaleFactor};
 
-use super::resources::Board;
+use super::resources::{Board, CurrentGameState};
 
 #[derive(Default, Debug, Clone, Eq, PartialEq, Hash, States)]
 pub enum GameState {
@@ -25,6 +25,8 @@ pub fn setup(mut commands: Commands) {
     }
 
     commands.insert_resource(Board {width: width, height: height, grid_1: grid_vec[0..size].to_vec(), grid_2: grid_vec, grid_flag: false});
+
+    commands.insert_resource(CurrentGameState{game_state: GameState::Running});
 }
 
 pub fn game_step(mut game: ResMut<Board>) {
@@ -144,6 +146,25 @@ pub fn place_cells(
             else {
                 board.grid_2[index] = false;
             }
+        }
+    }
+}
+
+pub fn keyboard_input(
+    keys: Res<Input<KeyCode>>,
+    mut current_state: ResMut<CurrentGameState>,
+    mut next_state: ResMut<NextState<GameState>>
+) {
+    if keys.just_pressed(KeyCode::Space) {
+        match current_state.game_state {
+            GameState::Running => {
+                next_state.set(GameState::Paused);
+                current_state.game_state = GameState::Paused;
+            },
+            GameState::Paused => {
+                next_state.set(GameState::Running);
+                current_state.game_state = GameState::Running;
+            },
         }
     }
 }

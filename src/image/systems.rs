@@ -38,7 +38,7 @@ pub fn setup(
 pub fn edit_image(handle : Res<ImageHandle>, mut images: ResMut<Assets<Image>>, game: Res<Board>) {
 
     let mut board = &game.grid_1;
-    if game.grid_flag {
+    if !game.grid_flag {
         board = &game.grid_2;
     }
 
