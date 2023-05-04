@@ -1,4 +1,4 @@
-use bevy::{prelude::*, render::texture::ImageSampler, input::mouse::MouseWheel};
+use bevy::{prelude::*, input::mouse::MouseWheel};
 use rand::prelude::*;
 
 use crate::game::{resources::Board, systems::get_index};
@@ -54,7 +54,6 @@ pub fn edit_image(
     }
 
     if let Some(image) = images.get_mut(&handle.handle){
-        image.sampler_descriptor = ImageSampler::nearest();
         let width: usize = image.size().x as usize;
         let height: usize = image.size().y as usize;
         for row in 0..height {

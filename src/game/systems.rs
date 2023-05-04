@@ -17,7 +17,7 @@ pub fn setup(mut commands: Commands) {
     let height: usize = 135;
     let size: usize = width * height;
     let mut grid_vec: Vec<bool> = Vec::with_capacity(size);
-    let dist = Bernoulli::new(0.1).unwrap();
+    let dist = Bernoulli::new(0.5).unwrap();
     let mut rng = rand::thread_rng();
 
     for _i in 0..size {
