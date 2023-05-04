@@ -172,5 +172,6 @@ pub fn keyboard_input(
     }
     if keys.just_pressed(KeyCode::C) {
         board.grid_1.fill(false);
+        board.grid_2.fill(false);
     }
 }
