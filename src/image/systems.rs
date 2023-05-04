@@ -5,8 +5,8 @@ use crate::game::{resources::Board, systems::get_index};
 
 use super::{resources::{ImageHandle, ScaleFactor, FadeColor}, components::{MainCamera, MainImage}};
 
-const IMAGE_WIDTH: f32 = 240.0;
-const IMAGE_HEIGHT: f32 = 135.0;
+pub const IMAGE_WIDTH: f32 = 240.0;
+pub const IMAGE_HEIGHT: f32 = 135.0;
 
 pub fn setup(
     mut commands: Commands, 

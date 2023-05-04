@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use rand::{distributions::Bernoulli, prelude::Distribution};
 
-use crate::image::{components::MainCamera, resources::ScaleFactor};
+use crate::image::{components::MainCamera, resources::ScaleFactor, systems::{IMAGE_WIDTH, IMAGE_HEIGHT}};
 
 use super::resources::{Board, CurrentGameState};
 
@@ -13,8 +13,8 @@ pub enum GameState {
 }
 
 pub fn setup(mut commands: Commands) {
-    let width: usize = 240;
-    let height: usize = 135;
+    let width: usize = IMAGE_WIDTH as usize;
+    let height: usize = IMAGE_HEIGHT as usize;
     let size: usize = width * height;
     let mut grid_vec: Vec<bool> = Vec::with_capacity(size);
     let dist = Bernoulli::new(0.5).unwrap();
@@ -173,5 +173,18 @@ pub fn keyboard_input(
     if keys.just_pressed(KeyCode::C) {
         board.grid_1.fill(false);
         board.grid_2.fill(false);
+    }
+    if keys.just_pressed(KeyCode::R) {
+        board.grid_1.clear();
+        board.grid_2.clear();
+        let size = (IMAGE_WIDTH * IMAGE_HEIGHT) as usize;
+        let dist = Bernoulli::new(0.5).unwrap();
+        let mut rng = rand::thread_rng();
+
+        for _i in 0..size {
+            let state: bool = dist.sample(&mut rng);
+            board.grid_1.push(state);
+            board.grid_2.push(state);
+        }
     }
 }
