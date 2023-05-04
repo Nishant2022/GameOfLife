@@ -1,8 +1,16 @@
 use bevy::prelude::*;
 use rand::{distributions::Bernoulli, prelude::Distribution};
 
+use crate::image::{components::MainCamera, resources::ScaleFactor};
+
 use super::resources::Board;
 
+#[derive(Default, Debug, Clone, Eq, PartialEq, Hash, States)]
+pub enum GameState {
+    #[default]
+    Running,
+    Paused
+}
 
 pub fn setup(mut commands: Commands) {
     let width: usize = 240;
@@ -93,4 +101,49 @@ pub fn get_index(x: usize, y: usize, width: usize, step: usize) -> usize {
 
 fn get_pos(x: i32, y: i32, width: i32, height: i32) -> usize {
     get_index(x.rem_euclid(width) as usize, y.rem_euclid(height) as usize, width as usize, 1)
+}
+
+pub fn place_cells(
+    windows: Query<&Window>,
+    camera_q: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    buttons: Res<Input<MouseButton>>,
+    mut board: ResMut<Board>,
+    scale_factor: Res<ScaleFactor>
+) {
+    // get the camera info and transform
+    // assuming there is exactly one main camera entity, so query::single() is OK
+    let (camera, camera_transform) = camera_q.single();
+
+    let window = windows.single();
+
+    // check if the cursor is inside the window and get its position
+    // then, ask bevy to convert into world coordinates, and truncate to discard Z
+    if let Some(world_position) = window.cursor_position()
+        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
+        .map(|ray| ray.origin.truncate())
+    {
+        let x = (world_position.x / scale_factor.scale + 120.0) as i32;
+        let y = (- world_position.y / scale_factor.scale + 67.5) as i32;
+        
+        if x < 0 || x > 239 || y < 0 || y > 134 {return}
+
+        let index = get_index(x as usize, y as usize, 240, 1);
+
+        if buttons.pressed(MouseButton::Left) {
+            if board.grid_flag {
+                board.grid_1[index] = true;
+            }
+            else {
+                board.grid_2[index] = true;
+            }
+        }
+        if buttons.pressed(MouseButton::Right) {
+            if board.grid_flag {
+                board.grid_1[index] = false;
+            }
+            else {
+                board.grid_2[index] = false;
+            }
+        }
+    }
 }
