@@ -62,9 +62,14 @@ fn update_image_pixel(image: &mut Image, x: usize, y: usize, width: usize, state
         image.data[get_index(x, y, width, 4) + 2] = 255;
     }
     else {
-        image.data[get_index(x, y, width, 4)] = 0;
-        image.data[get_index(x, y, width, 4) + 1] = 0;
-        image.data[get_index(x, y, width, 4) + 2] = 0;
+        if image.data[get_index(x, y, width, 4)] == 255 {
+            image.data[get_index(x, y, width, 4)] = 0;
+            image.data[get_index(x, y, width, 4) + 1] = 0;
+            image.data[get_index(x, y, width, 4) + 2] = 255;
+        }
+        else {
+            image.data[get_index(x, y, width, 4) + 2] = image.data[get_index(x, y, width, 4) + 2].saturating_sub(2);
+        }
     }
 
 }
