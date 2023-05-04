@@ -45,11 +45,12 @@ pub fn game_step(mut game: ResMut<Board>) {
                     }
                 }
                 if game.grid_1[get_pos(x, y, width, height)] {
-                    if count != 2 && count != 3 {
-                        game.grid_2[get_pos(x, y, width, height)] = false;
+                    count -= 1;
+                    if count == 2 || count == 3 {
+                        game.grid_2[get_pos(x, y, width, height)] = true;
                     }
                     else {
-                        game.grid_2[get_pos(x, y, width, height)] = true;
+                        game.grid_2[get_pos(x, y, width, height)] = false;
                     }
                 }
                 else {
@@ -76,11 +77,12 @@ pub fn game_step(mut game: ResMut<Board>) {
                     }
                 }
                 if game.grid_2[get_pos(x, y, width, height)] {
-                    if count != 2 && count != 3 {
-                        game.grid_1[get_pos(x, y, width, height)] = false;
+                    count -= 1;
+                    if count == 2 || count == 3 {
+                        game.grid_1[get_pos(x, y, width, height)] = true;
                     }
                     else {
-                        game.grid_1[get_pos(x, y, width, height)] = true;
+                        game.grid_1[get_pos(x, y, width, height)] = false;
                     }
                 }
                 else {
