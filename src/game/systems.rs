@@ -155,7 +155,8 @@ pub fn place_cells(
 pub fn keyboard_input(
     keys: Res<Input<KeyCode>>,
     mut current_state: ResMut<CurrentGameState>,
-    mut next_state: ResMut<NextState<GameState>>
+    mut next_state: ResMut<NextState<GameState>>,
+    mut board: ResMut<Board>
 ) {
     if keys.just_pressed(KeyCode::Space) {
         match current_state.game_state {
@@ -168,5 +169,8 @@ pub fn keyboard_input(
                 current_state.game_state = GameState::Running;
             },
         }
+    }
+    if keys.just_pressed(KeyCode::C) {
+        board.grid_1.fill(false);
     }
 }
