@@ -1,4 +1,5 @@
 use bevy::{prelude::*, render::texture::ImageSampler};
+use crate::game::{Board, get_index};
 
 pub struct PixelImage;
 
@@ -26,15 +27,20 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     });
 }
 
-fn edit_image(handle : Res<ImageHandle>, mut images: ResMut<Assets<Image>>) {
+fn edit_image(handle : Res<ImageHandle>, mut images: ResMut<Assets<Image>>, game: Res<Board>) {
 
-    if let Some(image) = images.get_mut(&handle.handle) {
+    let mut board = &game.grid_1;
+    if game.grid_flag {
+        board = &game.grid_2;
+    }
+
+    if let Some(image) = images.get_mut(&handle.handle){
         image.sampler_descriptor = ImageSampler::nearest();
         let width: usize = image.size().x as usize;
         let height: usize = image.size().y as usize;
-        for i in (0..(height * 4)).step_by(8) {
-            for j in (0..(width * 4)).step_by(8) {
-                update_image_pixel(image, j, i, width, Vec3 { x: 255.0, y: 255.0, z: 127.0 })
+        for row in 0..height {
+            for col in 0..width {
+                update_image_pixel(image, col, row, width, &board[get_index(col, row, width, 1)])
             }
         }
     }
@@ -45,9 +51,17 @@ struct ImageHandle {
     handle: Handle<Image>
 }
 
-fn update_image_pixel(image: &mut Image, x: usize, y: usize, width: usize, color: Vec3) {
+fn update_image_pixel(image: &mut Image, x: usize, y: usize, width: usize, state: &bool) {
 
-    image.data[y * width + x] = color.x as u8;
-    image.data[y * width + x + 1] = color.y as u8;
-    image.data[y * width + x + 2] = color.z as u8;
+    if *state {
+        image.data[get_index(x, y, width, 4)] = 255;
+        image.data[get_index(x, y, width, 4) + 1] = 255;
+        image.data[get_index(x, y, width, 4) + 2] = 255;
+    }
+    else {
+        image.data[get_index(x, y, width, 4)] = 0;
+        image.data[get_index(x, y, width, 4) + 1] = 0;
+        image.data[get_index(x, y, width, 4) + 2] = 0;
+    }
+
 }
