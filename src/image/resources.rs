@@ -9,3 +9,10 @@ pub struct ImageHandle {
 pub struct ScaleFactor {
     pub scale: f32
 }
+
+#[derive(Resource)]
+pub struct FadeColor {
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
+}

@@ -1,8 +1,9 @@
 use bevy::{prelude::*, render::texture::ImageSampler, input::mouse::MouseWheel};
+use rand::prelude::*;
 
 use crate::game::{resources::Board, systems::get_index};
 
-use super::{resources::{ImageHandle, ScaleFactor}, components::MainCamera};
+use super::{resources::{ImageHandle, ScaleFactor, FadeColor}, components::MainCamera};
 
 const IMAGE_WIDTH: f32 = 240.0;
 const IMAGE_HEIGHT: f32 = 135.0;
@@ -33,9 +34,19 @@ pub fn setup(
         },
         ..default()
     });
+
+    let mut rng = rand::thread_rng();
+    let r: u8 = rng.gen();
+    let g: u8 = rng.gen();
+    let b: u8 = rng.gen();
+    commands.insert_resource(FadeColor{r, g, b});
 }
 
-pub fn edit_image(handle : Res<ImageHandle>, mut images: ResMut<Assets<Image>>, game: Res<Board>) {
+pub fn edit_image(
+    handle : Res<ImageHandle>, 
+    mut images: ResMut<Assets<Image>>, 
+    game: Res<Board>,
+    fade_color: Res<FadeColor>) {
 
     let mut board = &game.grid_1;
     if !game.grid_flag {
@@ -48,13 +59,13 @@ pub fn edit_image(handle : Res<ImageHandle>, mut images: ResMut<Assets<Image>>, 
         let height: usize = image.size().y as usize;
         for row in 0..height {
             for col in 0..width {
-                update_image_pixel(image, col, row, width, &board[get_index(col, row, width, 1)])
+                update_image_pixel(image, col, row, width, &board[get_index(col, row, width, 1)], &fade_color)
             }
         }
     }
 }
 
-fn update_image_pixel(image: &mut Image, x: usize, y: usize, width: usize, state: &bool) {
+fn update_image_pixel(image: &mut Image, x: usize, y: usize, width: usize, state: &bool, fade_color: &FadeColor) {
 
     if *state {
         image.data[get_index(x, y, width, 4)] = 255;
@@ -63,11 +74,13 @@ fn update_image_pixel(image: &mut Image, x: usize, y: usize, width: usize, state
     }
     else {
         if image.data[get_index(x, y, width, 4)] == 255 {
-            image.data[get_index(x, y, width, 4)] = 0;
-            image.data[get_index(x, y, width, 4) + 1] = 0;
-            image.data[get_index(x, y, width, 4) + 2] = 255;
+            image.data[get_index(x, y, width, 4)] = fade_color.r;
+            image.data[get_index(x, y, width, 4) + 1] = fade_color.g;
+            image.data[get_index(x, y, width, 4) + 2] = fade_color.b;
         }
         else {
+            image.data[get_index(x, y, width, 4)] = image.data[get_index(x, y, width, 4)].saturating_sub(2);
+            image.data[get_index(x, y, width, 4) + 1] = image.data[get_index(x, y, width, 4) + 1].saturating_sub(2);
             image.data[get_index(x, y, width, 4) + 2] = image.data[get_index(x, y, width, 4) + 2].saturating_sub(2);
         }
     }
