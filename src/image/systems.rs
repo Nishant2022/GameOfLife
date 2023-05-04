@@ -1,9 +1,9 @@
-use bevy::{prelude::*, input::mouse::MouseWheel};
+use bevy::{prelude::*, input::mouse::MouseWheel, window::WindowResized};
 use rand::prelude::*;
 
 use crate::game::{resources::Board, systems::get_index};
 
-use super::{resources::{ImageHandle, ScaleFactor, FadeColor}, components::MainCamera};
+use super::{resources::{ImageHandle, ScaleFactor, FadeColor}, components::{MainCamera, MainImage}};
 
 const IMAGE_WIDTH: f32 = 240.0;
 const IMAGE_HEIGHT: f32 = 135.0;
@@ -17,23 +17,28 @@ pub fn setup(
     let window_width: f32 = window.resolution.width();
     let window_height: f32 = window.resolution.height();
 
-    let scale_factor:f32 = (window_width / IMAGE_WIDTH).max(window_height / IMAGE_HEIGHT);
+    let scale_factor:f32 = (window_width / IMAGE_WIDTH).min(window_height / IMAGE_HEIGHT);
     commands.insert_resource(ScaleFactor{scale: scale_factor});
 
 
-    commands.spawn((Camera2dBundle::default(), MainCamera));
+    commands.spawn((Camera2dBundle {
+        camera_2d: Camera2d {
+            clear_color: bevy::core_pipeline::clear_color::ClearColorConfig::Custom(Color::BLACK)
+        },
+        ..default()
+    }, MainCamera));
 
     let handle: Handle<Image> = asset_server.load("images/blank.png");
     commands.insert_resource(ImageHandle{handle: handle.clone()});
     
-    commands.spawn(SpriteBundle {
+    commands.spawn((SpriteBundle {
         texture: handle,
         transform: Transform {
             scale: Vec3 { x: scale_factor, y: scale_factor, z: 1.0 },
             ..default()
         },
         ..default()
-    });
+    }, MainImage));
 
     let mut rng = rand::thread_rng();
     let r: u8 = rng.gen();
@@ -120,7 +125,7 @@ pub fn translate_camera(
     windows: Query<&Window>
 ) {
     let mut translation = camera_transform.single_mut();
-    
+
     let scale = camera_scale.single().scale;
     let camera_top_left = camera_scale.single().area.min;
     let camera_bottom_right = camera_scale.single().area.max;
@@ -146,7 +151,23 @@ pub fn translate_camera(
     let x: f32 = translation.translation.x;
     let y: f32 = translation.translation.y;
 
-    translation.translation.x = x.clamp(-(window_width / 2.0) - camera_top_left.x, (window_width / 2.0) - camera_bottom_right.x);
-    translation.translation.y = y.clamp(-(window_height / 2.0) - camera_top_left.y, (window_height / 2.0) - camera_bottom_right.y);
 
+    if -(window_width / 2.0) - camera_top_left.x <= (window_width / 2.0) - camera_bottom_right.x {
+        translation.translation.x = x.clamp(-(window_width / 2.0) - camera_top_left.x, (window_width / 2.0) - camera_bottom_right.x);
+    }
+    if -(window_height / 2.0) - camera_top_left.y <= (window_height / 2.0) - camera_bottom_right.y {
+        translation.translation.y = y.clamp(-(window_height / 2.0) - camera_top_left.y, (window_height / 2.0) - camera_bottom_right.y);
+    }
+
+}
+
+pub fn window_resize(
+    mut events: EventReader<WindowResized>,
+    mut scale_factor: ResMut<ScaleFactor>,
+    mut images: Query<&mut Transform, With<MainImage>>
+) {
+    for event in events.iter() {
+        scale_factor.scale = (event.width / IMAGE_WIDTH).min(event.height / IMAGE_HEIGHT);
+        images.single_mut().scale = Vec3 {x: scale_factor.scale, y: scale_factor.scale, z: 1.0};
+    }
 }
