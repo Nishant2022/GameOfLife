@@ -126,12 +126,12 @@ pub fn place_cells(
         .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
         .map(|ray| ray.origin.truncate())
     {
-        let x = (world_position.x / scale_factor.scale + 120.0) as i32;
-        let y = (- world_position.y / scale_factor.scale + 67.5) as i32;
+        let x = (world_position.x / scale_factor.scale + IMAGE_WIDTH / 2.0) as i32;
+        let y = (- world_position.y / scale_factor.scale + IMAGE_HEIGHT / 2.0) as i32;
         
-        if x < 0 || x > 239 || y < 0 || y > 134 {return}
+        if x < 0 || x > IMAGE_WIDTH as i32 - 1 || y < 0 || y > IMAGE_HEIGHT as i32 - 1 {return}
 
-        let index = get_index(x as usize, y as usize, 240, 1);
+        let index = get_index(x as usize, y as usize, IMAGE_WIDTH as usize, 1);
 
         if buttons.pressed(MouseButton::Left) {
             if board.grid_flag {
