@@ -5,8 +5,8 @@ use crate::game::{resources::Board, systems::get_index};
 
 use super::{resources::{ImageHandle, ScaleFactor, FadeColor}, components::{MainCamera, MainImage}};
 
-pub const IMAGE_WIDTH: f32 = 240.0;
-pub const IMAGE_HEIGHT: f32 = 135.0;
+pub const IMAGE_WIDTH: f32 = 480.0;
+pub const IMAGE_HEIGHT: f32 = 270.0;
 
 pub fn setup(
     mut commands: Commands, 
@@ -28,7 +28,7 @@ pub fn setup(
         ..default()
     }, MainCamera));
 
-    let handle: Handle<Image> = asset_server.load("images/blank.png");
+    let handle: Handle<Image> = asset_server.load("images/blank_480x270.png");
     commands.insert_resource(ImageHandle{handle: handle.clone()});
     
     commands.spawn((SpriteBundle {
